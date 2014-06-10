@@ -3,6 +3,21 @@
 
 ## Loading and preprocessing the data
 
+The data for this assignment has be downloaded from the course web
+site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K], unzipped in **/data** directory. 
+
+The variables included in this dataset are:
+
+* steps: Number of steps taking in a 5-minute interval (missing 
+    values are coded as `NA`);
+
+* date: The date on which the measurement was taken in YYYY-MM-DD
+    format and **parsed in Date format**;
+
+* interval: Identifier for the 5-minute interval in which
+    measurement was taken
+
+
 ```{r,echo=TRUE,results='hide'}
 AMD <- read.table("~/GitHub/RepData_PeerAssessment1/data/activity.csv",
                       header = TRUE,
@@ -27,24 +42,11 @@ minday<-min(AMD$date)  #Time difference of 60 days
 ```
 
 
-The data for this assignment has be downloaded from the course web
-site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K], unzipped in /data directory. 
 
-The variables included in this dataset are:
+The dataset is stored in a comma-separated-value (CSV) file.    This dataset has a total of **`r dimAMD`** observations. 
 
-* **steps**: Number of steps taking in a 5-minute interval (missing 
-    values are coded as `NA`);
-
-* **date**: The date on which the measurement was taken in YYYY-MM-DD
-    format and parsed in Date format;
-
-* **interval**: Identifier for the 5-minute interval in which
-    measurement was taken
-
-The dataset is stored in a comma-separated-value (CSV) file; this dataset has a total of `r dimAMD` observations. 
-
-The dataset comprises `r ndays` days, from `r minday` to `r maxday`.   
-Every day there are `r nintervals` intervals.
+The dataset comprises **`r ndays`** days, from `r minday` to `r maxday`.   
+Every day is divided in **`r nintervals`** intervals of 5 minutes.
 
 
 
@@ -55,6 +57,8 @@ the dataset.
 
 ```{r preplot1, echo=TRUE, results='hide'}
 library (plyr)
+
+# calculate the total number of steps taken per day
 
 AMDday<-ddply(AMD, .(date), summarise,
              d_na=mean(is.na(steps)),
@@ -78,7 +82,7 @@ There are `r NAdays` days with NA values in Variable *steps*. Those days that wi
 
 The plot reports the total number of steps taken per day.
 
-```{r plot1, echo=TRUE}
+```{r plot1, fig.width= 8, echo=TRUE}
 
 library (ggplot2)
 
@@ -91,9 +95,9 @@ ggplot(data=AMDday, aes(x=date, y= dtot, fill= "#FF0000")) +
 
 For those data: 
 
-* the mean is `r meanstepsbyday` and
+* the mean is **`r meanstepsbyday`** and
 
-* the median is `r mediantepsbyday` 
+* the median is **`r mediantepsbyday`** 
 
 
 ## What is the average daily activity pattern?
@@ -101,7 +105,7 @@ For those data:
 Please find a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 
 
-```{r plot2, echo=TRUE}
+```{r plot2, fig.width= 8, echo=TRUE}
 
 AMDint<-ddply(AMD, .(interval), summarise,
             i_na=mean(is.na(steps)),
@@ -109,6 +113,9 @@ AMDint<-ddply(AMD, .(interval), summarise,
             imean=mean(steps, na.rm = T))
 
 AMDmaxint<- AMDint$interval[AMDint$imean==max(AMDint$imean)]
+AMDmax<- round(max(AMDint$imean),0)
+
+
 
 ggplot(data=AMDint, aes(x=interval, y= imean)) +
     geom_line(size=1.3,color= "#FF00CC") +
@@ -121,7 +128,7 @@ ggplot(data=AMDint, aes(x=interval, y= imean)) +
 ```
 
 
-The minute interval, on average across all the days in the dataset, that contains the maximum number of steps is `r AMDmaxint`
+The minute interval, on average across all the days in the dataset, that contains the maximum number of steps is **`r AMDmaxint`** with a value of **`r AMDmax`** steps
 
 ## Imputing missing values
 
@@ -153,13 +160,9 @@ The strategy for filling in all of the missing values in a **new**  dataset has 
 
 AMDf <- AMD
 for (i in namesNAdays) {
-    
-    
-        
+            
         AMDf$steps[AMD$date==i]<-AMDint$imean
- 
-    
-}
+ }
 
 ## some error proof
 
@@ -172,10 +175,10 @@ sum(!complete.cases(AMDf$steps)) # 0
 
 Please find the histogram of the total number of steps taken each day. 
 
-The days filled with the mean for that 5-minute interval have a diferent colour.
+The days filled with the mean for that 5-minute interval have a different colour.
 
 
-```{r plot4, echo=TRUE}
+```{r plot3, fig.width= 8, echo=TRUE}
 
 
 AMDfday<-ddply(AMDf, .(date), summarise,
@@ -208,7 +211,7 @@ For those data:
 
 Please find a panel plot containing a time series plot  of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
-```{r plot5, echo=TRUE}
+```{r plot4, fig.width= 8, echo=TRUE}
 
 # first I set working days and weekend days
 daysinweek<-weekdays(unique(AMD$date)[1:7])
@@ -257,5 +260,4 @@ ggplot(data=AMDfweint, aes(x=interval, y= imean, color=flag)) +
     xlab("interval") + ylab( "n. steps")
 
 ```
-
 

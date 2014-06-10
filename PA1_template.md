@@ -3,6 +3,21 @@
 
 ## Loading and preprocessing the data
 
+The data for this assignment has be downloaded from the course web
+site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K], unzipped in **/data** directory. 
+
+The variables included in this dataset are:
+
+* steps: Number of steps taking in a 5-minute interval (missing 
+    values are coded as `NA`);
+
+* date: The date on which the measurement was taken in YYYY-MM-DD
+    format and **parsed in Date format**;
+
+* interval: Identifier for the 5-minute interval in which
+    measurement was taken
+
+
 
 ```r
 AMD <- read.table("~/GitHub/RepData_PeerAssessment1/data/activity.csv",
@@ -27,24 +42,11 @@ minday<-min(AMD$date)  #Time difference of 60 days
 ```
 
 
-The data for this assignment has be downloaded from the course web
-site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K], unzipped in /data directory. 
 
-The variables included in this dataset are:
+The dataset is stored in a comma-separated-value (CSV) file.    This dataset has a total of **17568** observations. 
 
-* **steps**: Number of steps taking in a 5-minute interval (missing 
-    values are coded as `NA`);
-
-* **date**: The date on which the measurement was taken in YYYY-MM-DD
-    format and parsed in Date format;
-
-* **interval**: Identifier for the 5-minute interval in which
-    measurement was taken
-
-The dataset is stored in a comma-separated-value (CSV) file; this dataset has a total of 17568 observations. 
-
-The dataset comprises 61 days, from 2012-10-01 to 2012-11-30.   
-Every day there are 288 intervals.
+The dataset comprises **61** days, from 2012-10-01 to 2012-11-30.   
+Every day is divided in **288** intervals of 5 minutes.
 
 
 
@@ -56,6 +58,8 @@ the dataset.
 
 ```r
 library (plyr)
+
+# calculate the total number of steps taken per day
 
 AMDday<-ddply(AMD, .(date), summarise,
              d_na=mean(is.na(steps)),
@@ -91,9 +95,9 @@ ggplot(data=AMDday, aes(x=date, y= dtot, fill= "#FF0000")) +
 
 For those data: 
 
-* the mean is 9354.2 and
+* the mean is **9354.2** and
 
-* the median is 10395 
+* the median is **10395** 
 
 
 ## What is the average daily activity pattern?
@@ -109,6 +113,9 @@ AMDint<-ddply(AMD, .(interval), summarise,
             imean=mean(steps, na.rm = T))
 
 AMDmaxint<- AMDint$interval[AMDint$imean==max(AMDint$imean)]
+AMDmax<- round(max(AMDint$imean),0)
+
+
 
 ggplot(data=AMDint, aes(x=interval, y= imean)) +
     geom_line(size=1.3,color= "#FF00CC") +
@@ -119,7 +126,7 @@ ggplot(data=AMDint, aes(x=interval, y= imean)) +
 ![plot of chunk plot2](figure/plot2.png) 
 
 
-The minute interval, on average across all the days in the dataset, that contains the maximum number of steps is 835
+The minute interval, on average across all the days in the dataset, that contains the maximum number of steps is **835** with a value of **206** steps
 
 ## Imputing missing values
 
@@ -149,13 +156,9 @@ The strategy for filling in all of the missing values in a **new**  dataset has 
 
 AMDf <- AMD
 for (i in namesNAdays) {
-    
-    
-        
+            
         AMDf$steps[AMD$date==i]<-AMDint$imean
- 
-    
-}
+ }
 
 ## some error proof
 
@@ -188,7 +191,7 @@ ggplot(data=AMDfday, aes(x=date, y= dtot, fill= factor(d_na))) +
     xlab("Date") + ylab( "n. steps")
 ```
 
-![plot of chunk plot4](figure/plot4.png) 
+![plot of chunk plot3](figure/plot3.png) 
 
 For those data: 
 
@@ -251,6 +254,5 @@ ggplot(data=AMDfweint, aes(x=interval, y= imean, color=flag)) +
     xlab("interval") + ylab( "n. steps")
 ```
 
-![plot of chunk plot5](figure/plot5.png) 
-
+![plot of chunk plot4](figure/plot4.png) 
 
