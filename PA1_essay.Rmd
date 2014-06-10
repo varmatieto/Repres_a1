@@ -1,0 +1,261 @@
+# Reproducible Research: Peer Assessment 1
+
+
+## Loading and preprocessing the data
+
+```{r,echo=TRUE,results='hide'}
+AMD <- read.table("~/GitHub/RepData_PeerAssessment1/data/activity.csv",
+                      header = TRUE,
+                      sep = ",",
+                      dec = ".",
+                      stringsAsFactors = FALSE)
+
+
+str(AMD)                   # 17586 obs. in three var
+
+dimAMD<- dim(AMD)[1]
+## Parse time data
+AMD$date <- as.Date(AMD$date, "%Y-%m-%d")
+
+ndays<-length(unique(AMD$date )) #61 days 
+nintervals<-length(unique(AMD$interval )) #288 interval in a days 
+
+
+maxday<-max(AMD$date)
+minday<-min(AMD$date)  #Time difference of 60 days
+
+```
+
+
+The data for this assignment has be downloaded from the course web
+site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K], unzipped in /data directory. 
+
+The variables included in this dataset are:
+
+* **steps**: Number of steps taking in a 5-minute interval (missing 
+    values are coded as `NA`);
+
+* **date**: The date on which the measurement was taken in YYYY-MM-DD
+    format and parsed in Date format;
+
+* **interval**: Identifier for the 5-minute interval in which
+    measurement was taken
+
+The dataset is stored in a comma-separated-value (CSV) file; this dataset has a total of `r dimAMD` observations. 
+
+The dataset comprises `r ndays` days, from `r minday` to `r maxday`.   
+Every day there are `r nintervals` intervals.
+
+
+
+## What is mean total number of steps taken per day?
+
+For this part of the assignment, I have ignored the missing values in
+the dataset.
+
+```{r preplot1, echo=TRUE, results='hide'}
+library (plyr)
+
+AMDday<-ddply(AMD, .(date), summarise,
+             d_na=mean(is.na(steps)),
+             dtot= sum(steps, na.rm = T),
+             dmean=mean(steps, na.rm = T))
+
+str(AMDday)
+
+NAdays<-sum(AMDday$d_na==1) # 8 days with NA
+namesNAdays<- unique (AMD$date[is.na(AMD$steps)] )
+
+summary(AMDday$dmean)
+
+meanstepsbyday <- round (mean (AMDday$dtot),1) # 9354
+mediantepsbyday <- median (AMDday$dtot) # 10395
+
+
+```
+
+There are `r NAdays` days with NA values in Variable *steps*. Those days that will be at zero in the plot. 
+
+The plot reports the total number of steps taken per day.
+
+```{r plot1, echo=TRUE}
+
+library (ggplot2)
+
+ggplot(data=AMDday, aes(x=date, y= dtot, fill= "#FF0000")) + 
+    geom_bar(stat="identity",show_guide = F ) +
+    ggtitle("total steps by day") + 
+    xlab("Date") + ylab( "n. steps")
+
+```
+
+For those data: 
+
+* the mean is `r meanstepsbyday` and
+
+* the median is `r mediantepsbyday` 
+
+
+## What is the average daily activity pattern?
+
+Please find a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
+
+
+```{r plot2, echo=TRUE}
+
+AMDint<-ddply(AMD, .(interval), summarise,
+            i_na=mean(is.na(steps)),
+            itot= sum(steps, na.rm = T),
+            imean=mean(steps, na.rm = T))
+
+AMDmaxint<- AMDint$interval[AMDint$imean==max(AMDint$imean)]
+
+ggplot(data=AMDint, aes(x=interval, y= imean)) +
+    geom_line(size=1.3,color= "#FF00CC") +
+    ggtitle("mean steps per interval ") + 
+    xlab("interval") + ylab( "n. steps")
+
+
+
+
+```
+
+
+The minute interval, on average across all the days in the dataset, that contains the maximum number of steps is `r AMDmaxint`
+
+## Imputing missing values
+
+```{r r preplot3, echo=TRUE, results='hide'}
+
+sum(is.na(AMD$steps)) # 2304
+
+nNAobs<-sum(!complete.cases(AMD$steps)) # 2304
+
+288*8
+NAdays<- length (unique (AMD$date[is.na(AMD$steps)] ) )
+namesNAdays<- unique (AMD$date[is.na(AMD$steps)] ) # in 8 days
+
+
+```
+
+
+
+As said before there are `r NAdays` days with NA values in Variable *steps*. Those days are `r namesNAdays`.
+
+The total number of rows with `NA`s are **`r nNAobs`** .
+
+
+The strategy for filling in all of the missing values in a **new**  dataset has been to use the mean for that 5-minute interval.
+
+```{r preplot4, echo=TRUE, results='hide'}
+
+# fill the days with NA values with 288 mean values mean for that 5-minute interval
+
+AMDf <- AMD
+for (i in namesNAdays) {
+    
+    
+        
+        AMDf$steps[AMD$date==i]<-AMDint$imean
+ 
+    
+}
+
+## some error proof
+
+sum(is.na(AMDf$steps)) # 0
+
+sum(!complete.cases(AMDf$steps)) # 0
+
+
+```
+
+Please find the histogram of the total number of steps taken each day. 
+
+The days filled with the mean for that 5-minute interval have a diferent colour.
+
+
+```{r plot4, echo=TRUE}
+
+
+AMDfday<-ddply(AMDf, .(date), summarise,
+              d_na=mean(is.na(steps)),
+              dtot= sum(steps, na.rm = F),
+              dmean=mean(steps, na.rm = F))
+
+AMDfday$d_na[AMDfday$date%in%namesNAdays]<-1
+
+
+fmeanstepsbyday <- mean (AMDfday$dtot) 
+fmediantepsbyday <- median (AMDfday$dtot) 
+
+ggplot(data=AMDfday, aes(x=date, y= dtot, fill= factor(d_na))) + 
+    geom_bar(stat="identity", show_guide = F ) +
+    ggtitle("total steps by day (no NA)") + 
+    xlab("Date") + ylab( "n. steps")
+
+```
+
+For those data: 
+
+* the mean is `r fmeanstepsbyday` and
+
+* the median is `r fmediantepsbyday` 
+
+
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+Please find a panel plot containing a time series plot  of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```{r plot5, echo=TRUE}
+
+# first I set working days and weekend days
+daysinweek<-weekdays(unique(AMD$date)[1:7])
+wdays<- daysinweek[1:5]
+edays<- daysinweek[6:7]
+
+# then I created a new dataset with an addition variable that account for 
+# working days = and not = 0
+
+whatday<- 0
+
+AMDfwe<- cbind (AMDf, whatday)
+
+isworking <- weekdays(AMDfwe$date)%in%wdays
+
+AMDfwe$whatday[isworking]<- 1
+
+# Calculate the average number of steps taken, averaged across all weekday days 
+#  or weekend days 
+
+AMDfw <- subset(AMDfwe, whatday ==  1 )
+AMDfe <- subset(AMDfwe, whatday ==  0 )
+
+
+AMDfwint<-ddply(AMDfw, .(interval), summarise,
+             flag=1,
+            imean=mean(steps, na.rm = T))
+
+AMDfeint<-ddply(AMDfe, .(interval), summarise,
+                flag=0,
+                imean=mean(steps, na.rm = T))
+
+
+# append the two files and give names at the two levels
+
+AMDfweint<-rbind(AMDfeint, AMDfwint)
+
+AMDfweint$flag <- as.factor (AMDfweint$flag)
+
+levels(AMDfweint$flag) <- c("weekday" ,"weekend" )
+
+ggplot(data=AMDfweint, aes(x=interval, y= imean, color=flag)) +
+    geom_line(size=1.3, show_guide = F  ) +
+    facet_wrap(~ flag , ncol=1) +
+    ggtitle("mean steps per interval ") + 
+    xlab("interval") + ylab( "n. steps")
+
+```
+
+
