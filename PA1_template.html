@@ -184,17 +184,19 @@ hljs.initHighlightingOnLoad();
 <h2>Loading and preprocessing the data</h2>
 
 <p>The data for this assignment has be downloaded from the course web
-site: <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Activity monitoring data</a> [52K], unzipped in <strong>/data</strong> directory. </p>
+site: <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Activity monitoring data</a> and unzipped in <strong>&ldquo;/data&rdquo;</strong> directory.</p>
+
+<p>It is a comma-separated-value (CSV) file.  </p>
 
 <p>The variables included in this dataset are:</p>
 
 <ul>
 <li><p>steps: Number of steps taking in a 5-minute interval (missing 
-values are coded as <code>NA</code>);</p></li>
+values are coded as <code>NA</code>) <strong>as numeric</strong>;</p></li>
 <li><p>date: The date on which the measurement was taken in YYYY-MM-DD
 format and <strong>parsed in Date format</strong>;</p></li>
 <li><p>interval: Identifier for the 5-minute interval in which
-measurement was taken</p></li>
+measurement was taken <strong>as numeric</strong>.</p></li>
 </ul>
 
 <pre><code class="r">AMD &lt;- read.table(&quot;~/GitHub/RepData_PeerAssessment1/data/activity.csv&quot;,
@@ -218,9 +220,8 @@ maxday&lt;-max(AMD$date)
 minday&lt;-min(AMD$date)  #Time difference of 60 days
 </code></pre>
 
-<p>The dataset is stored in a comma-separated-value (CSV) file.    This dataset has a total of <strong>17568</strong> observations. </p>
-
-<p>The dataset comprises <strong>61</strong> days, from 2012-10-01 to 2012-11-30.<br/>
+<p>This dataset has a total of <strong>17568</strong> observations.<br/>
+The dataset comprises <strong>61</strong> days, from 2012-10-01 to 2012-11-30.<br/>
 Every day is divided in <strong>288</strong> intervals of 5 minutes.</p>
 
 <h2>What is mean total number of steps taken per day?</h2>
@@ -327,7 +328,7 @@ sum(!complete.cases(AMDf$steps)) # 0
 
 <p>Please find the histogram of the total number of steps taken each day. </p>
 
-<p>The days filled with the mean for that 5-minute interval have a diferent colour.</p>
+<p>The days filled with the mean for that 5-minute interval have a different colour.</p>
 
 <pre><code class="r">AMDfday&lt;-ddply(AMDf, .(date), summarise,
               d_na=mean(is.na(steps)),
@@ -365,7 +366,7 @@ wdays&lt;- daysinweek[1:5]
 edays&lt;- daysinweek[6:7]
 
 # then I created a new dataset with an addition variable that account for 
-# working days = and not = 0
+# working days = 1 and not = 0
 
 whatday&lt;- 0
 

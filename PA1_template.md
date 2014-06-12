@@ -4,18 +4,20 @@
 ## Loading and preprocessing the data
 
 The data for this assignment has be downloaded from the course web
-site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K], unzipped in **/data** directory. 
+site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) and unzipped in **"/data"** directory.
+
+It is a comma-separated-value (CSV) file.  
 
 The variables included in this dataset are:
 
 * steps: Number of steps taking in a 5-minute interval (missing 
-    values are coded as `NA`);
+    values are coded as `NA`) **as numeric**;
 
 * date: The date on which the measurement was taken in YYYY-MM-DD
     format and **parsed in Date format**;
 
 * interval: Identifier for the 5-minute interval in which
-    measurement was taken
+    measurement was taken **as numeric**.
 
 
 
@@ -43,8 +45,7 @@ minday<-min(AMD$date)  #Time difference of 60 days
 
 
 
-The dataset is stored in a comma-separated-value (CSV) file.    This dataset has a total of **17568** observations. 
-
+This dataset has a total of **17568** observations.     
 The dataset comprises **61** days, from 2012-10-01 to 2012-11-30.   
 Every day is divided in **288** intervals of 5 minutes.
 
@@ -169,7 +170,7 @@ sum(!complete.cases(AMDf$steps)) # 0
 
 Please find the histogram of the total number of steps taken each day. 
 
-The days filled with the mean for that 5-minute interval have a diferent colour.
+The days filled with the mean for that 5-minute interval have a different colour.
 
 
 
@@ -213,7 +214,7 @@ wdays<- daysinweek[1:5]
 edays<- daysinweek[6:7]
 
 # then I created a new dataset with an addition variable that account for 
-# working days = and not = 0
+# working days = 1 and not = 0
 
 whatday<- 0
 
