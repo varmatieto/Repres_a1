@@ -188,13 +188,13 @@ site: <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.z
 
 <p>It is a comma-separated-value (CSV) file.  </p>
 
-<p>The variables included in this dataset are:</p>
+<p>Reading the dataset I get three variables:</p>
 
 <ul>
 <li><p>steps: Number of steps taking in a 5-minute interval (missing 
 values are coded as <code>NA</code>) <strong>as numeric</strong>;</p></li>
 <li><p>date: The date on which the measurement was taken in YYYY-MM-DD
-format and <strong>parsed in Date format</strong>;</p></li>
+format and <strong>as Date format</strong>;</p></li>
 <li><p>interval: Identifier for the 5-minute interval in which
 measurement was taken <strong>as numeric</strong>.</p></li>
 </ul>
@@ -233,12 +233,16 @@ the dataset.</p>
 
 # calculate the total number of steps taken per day
 
+# summarize by date
+
 AMDday&lt;-ddply(AMD, .(date), summarise,
              d_na=mean(is.na(steps)),
              dtot= sum(steps, na.rm = T),
              dmean=mean(steps, na.rm = T))
 
 str(AMDday)
+
+# needed to answer to questions
 
 NAdays&lt;-sum(AMDday$d_na==1) # 8 days with NA
 namesNAdays&lt;- unique (AMD$date[is.na(AMD$steps)] )
@@ -274,7 +278,9 @@ ggplot(data=AMDday, aes(x=date, y= dtot, fill= &quot;#FF0000&quot;)) +
 
 <p>Please find a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).</p>
 
-<pre><code class="r">AMDint&lt;-ddply(AMD, .(interval), summarise,
+<pre><code class="r"># summarize by interval
+
+AMDint&lt;-ddply(AMD, .(interval), summarise,
             i_na=mean(is.na(steps)),
             itot= sum(steps, na.rm = T),
             imean=mean(steps, na.rm = T))
@@ -296,7 +302,9 @@ ggplot(data=AMDint, aes(x=interval, y= imean)) +
 
 <h2>Imputing missing values</h2>
 
-<pre><code class="r">sum(is.na(AMD$steps)) # 2304
+<pre><code class="r"># some proof to be sure of result!!
+
+sum(is.na(AMD$steps)) # 2304
 
 nNAobs&lt;-sum(!complete.cases(AMD$steps)) # 2304
 

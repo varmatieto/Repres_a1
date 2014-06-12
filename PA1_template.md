@@ -8,13 +8,13 @@ site: [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2
 
 It is a comma-separated-value (CSV) file.  
 
-The variables included in this dataset are:
+Reading the dataset I get three variables:
 
 * steps: Number of steps taking in a 5-minute interval (missing 
     values are coded as `NA`) **as numeric**;
 
 * date: The date on which the measurement was taken in YYYY-MM-DD
-    format and **parsed in Date format**;
+    format and **as Date format**;
 
 * interval: Identifier for the 5-minute interval in which
     measurement was taken **as numeric**.
@@ -62,12 +62,16 @@ library (plyr)
 
 # calculate the total number of steps taken per day
 
+# summarize by date
+
 AMDday<-ddply(AMD, .(date), summarise,
              d_na=mean(is.na(steps)),
              dtot= sum(steps, na.rm = T),
              dmean=mean(steps, na.rm = T))
 
 str(AMDday)
+
+# needed to answer to questions
 
 NAdays<-sum(AMDday$d_na==1) # 8 days with NA
 namesNAdays<- unique (AMD$date[is.na(AMD$steps)] )
@@ -108,6 +112,8 @@ Please find a time series plot of the 5-minute interval (x-axis) and the average
 
 
 ```r
+# summarize by interval
+
 AMDint<-ddply(AMD, .(interval), summarise,
             i_na=mean(is.na(steps)),
             itot= sum(steps, na.rm = T),
@@ -133,6 +139,8 @@ The minute interval, on average across all the days in the dataset, that contain
 
 
 ```r
+# some proof to be sure of result!!
+
 sum(is.na(AMD$steps)) # 2304
 
 nNAobs<-sum(!complete.cases(AMD$steps)) # 2304
